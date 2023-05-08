@@ -1,11 +1,9 @@
-import { Post } from "../Models/index.js";
+import { PostService } from "../Services/index.js";
 
 class PostController {
 	async create(req, res) {
 		try {
-			const {author, title, content, picture} = req.body;
-			const post = await Post.create({author, title, content, picture});
-			await post.save();
+			const post = await PostService.create(req.body);
 			res.json(post);
 		} catch(e) {
 			res.status(500).json(e);
@@ -14,7 +12,7 @@ class PostController {
 
 	async getAll(req, res) {
 		try {
-			const posts = await Post.find();
+			const posts = await PostService.getAll();
 			return res.json(posts);
 		} catch(e) {
 			res.status(500).json(e)
@@ -23,11 +21,7 @@ class PostController {
 
 	async getOne(req, res) {
 		try {
-			const {id} = req.params;
-			if (!id) {
-				return res.status(400).json({message: 'id not indication'});
-			}
-			const post = await Post.findById(id);
+			const post = await PostService.getOne(req.params.id);
 			return res.json(post);
 		} catch(e) {
 			res.status(500).json(e)
@@ -36,11 +30,7 @@ class PostController {
 
 	async update(req, res) {
 		try {
-			const post = req.body;
-			if (!post._id) {
-				return res.status(400).json({message: 'id not indication'});
-			}
-			const updatedPost = await Post.findByIdAndUpdate(post._id, post, {new:true});
+			const updatedPost = await PostService.update(req.body);
 			return res.json(updatedPost);
 		} catch(e) {
 			res.status(500).json(e)
@@ -49,12 +39,8 @@ class PostController {
 
 	async delete(req, res) {
 		try {
-			const {id} = req.params;
-			if (!id) {
-				return res.status(400).json({message: 'id not indication'});
-			}
-			const post = await Post.findByIdAndDelete(id);
-			return res.json(post);
+			const postDelete = await PostService.delete(req.params.id);
+			return res.json(postDelete);
 		} catch(e) {
 			res.status(500).json(e)
 		}
