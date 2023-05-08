@@ -1,0 +1,56 @@
+version: '3.1'
+
+services:
+
+  nodejs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node-14_slim
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/home/node/app
+      - node_modules:/home/node/app/node_modules
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:5.0.6-focal
+    container_name: mongo_5.0.6
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${PASSWORD}
+    ports:
+      - 27017:27017
+    volumes:
+      - dbdata:/data/db
+    networks:
+      - app-network
+
+  mongo-express:
+    image: mongo-express:1.0.0-alpha.4
+    container_name: mongo-express_alpha4
+    restart: unless-stopped
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${PASSWORD}
+      ME_CONFIG_MONGODB_URL: ${DB_URL}
+    volumes:
+      - dbdata:/data/db
+    ports:
+      - 8081:8081
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+  node_modules:
